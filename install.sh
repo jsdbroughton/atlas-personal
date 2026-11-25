@@ -112,6 +112,44 @@ if [[ -n "$atlas_main" ]]; then
   else
     ln -sfn "$repo" "$dest"
   fi
+
+  # setup owns this file. Add one key to [env] and leave every other personal
+  # value where it is, including keys written after setup.
+  python3 - "$atlas_main/mise.local.toml" "$repo" <<'PY'
+import pathlib, re, sys
+
+path, repo = sys.argv[1], sys.argv[2]
+file = pathlib.Path(path)
+if not file.is_file():
+    print(f"install: {path} is absent — run mise run setup in the atlas checkout, then re-run install")
+    sys.exit(0)
+text = file.read_text()
+begin, end = "# atlas-personal:begin", "# atlas-personal:end"
+quoted = '"' + repo.replace("\\", "\\\\").replace('"', '\\"') + '"'
+block = f"{begin}\nATLAS_PERSONAL_DIR = {quoted}\n{end}\n"
+if begin in text and end in text:
+    pre, _, rest = text.partition(begin)
+    _, _, post = rest.partition(end)
+    if post.startswith("\n"):
+        post = post[1:]
+    new = pre + block + post
+elif re.search(r"(?m)^ATLAS_PERSONAL_DIR\s*=", text):
+    print("install: mise.local.toml already sets ATLAS_PERSONAL_DIR; left it unchanged")
+    sys.exit(0)
+elif re.search(r"(?m)^\[env\]\s*$", text):
+    new = re.sub(r"(?m)^\[env\]\s*$", "[env]\n" + block.rstrip("\n"), text, count=1)
+    if not new.endswith("\n"):
+        new += "\n"
+else:
+    new = "[env]\n" + block + ("\n" if text and not text.startswith("\n") else "") + text
+mode = file.stat().st_mode
+file.write_text(new)
+file.chmod(mode)
+print(f"install: set ATLAS_PERSONAL_DIR in {path}")
+PY
 fi
 
 echo "install: commands on ~/.local/bin, harnesses pointed at AGENTS.md, ATLAS_PERSONAL_DIR=$repo"
+if [[ -n "$atlas_main" ]]; then
+  echo "install: next, from the atlas checkout: mise run agents-sync"
+fi
