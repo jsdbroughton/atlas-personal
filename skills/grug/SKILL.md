@@ -4,8 +4,8 @@ description: >-
   Independent Grug pass on a concrete code change. Before relying on a
   bugfix, feature, refactor, or diff, pipe the task, the constraints, and
   the proposed change to the `grug` shell command and wait for ENOUGH,
-  SMALLER, or REFUSE. Grug keeps the change small, boring, and inside the
-  task. Not for greenfield design, architecture with no code yet, or a
+  SMALLER, or REFUSE. Grug keeps the architecture boring and inside the
+  task. More code that delivers a stated outcome is not complexity. Not for greenfield design, architecture with no code yet, or a
   throwaway spike. Correctness is Momus. How people use it is Ariadne.
 ---
 
@@ -14,6 +14,10 @@ description: >-
 Grug is the second mind on a code change. Complexity is the enemy. It shows
 up as a clever abstraction, a drive-by refactor, or a diff that does more
 than it was asked.
+
+More code that delivers a stated outcome is not complexity. Ariadne names
+that outcome. Grug judges whether the architecture that delivers it is the
+boring one. Do not cut the outcome to shrink the diff.
 
 Before relying on a non-trivial bugfix, feature, refactor, or diff, send it
 to Grug. The command is `grug`. It runs a fresh headless process and sees

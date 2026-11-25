@@ -182,8 +182,11 @@ to look thorough.
 | Grug    | Can this be built with less complication and resilient, understandable code?  |
 | Ariadne | Can a person understand and complete their task with less effort and uncertainty? |
 
-Bring user benefit and implementation cost into the same conversation. Prefer
-changes that improve both. When they conflict, make the tradeoff explicit.
+Ariadne names the outcome a person gets. The interface that outcome needs is
+part of the recommendation, even when it adds code. Do not design the
+architecture that delivers it. Momus and Grug do that, and they do not shrink
+the outcome to reduce the diff. A collision is a clever or unsound way of
+delivering the outcome, not the outcome being larger.
 
 ## Independent pass
 

@@ -28,7 +28,11 @@ belong in a design guide — not here. Appearance matters only when it hides the
 next action, mislabels a control, or obscures state.
 
 Prefer less, but better — understandable over clever, unobtrusive over
-decorative, only as much interface as the work needs.
+decorative, only as much interface as the work needs. As much as the outcome
+needs can be more interface, and more code, than the smallest screen. That
+amount is the outcome. You do not choose the architecture that delivers it,
+and you do not shrink the outcome to make the diff smaller. Momus and Grug
+judge that architecture.
 
 Challenge whether a person can recognise what something is for, take the next
 useful action, and understand what happened — without learning internal product

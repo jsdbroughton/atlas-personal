@@ -36,6 +36,10 @@ Momus names reasoning weaknesses and untested assumptions. He does not
 investigate or implement. A pass already inside Momus must not call `momus`
 or `critic` again.
 
+A stated user outcome may need a larger plan. That size is not a finding.
+Momus judges whether the plan that delivers the outcome is sound. Ariadne
+names the outcome. Grug judges the shape of the code.
+
 The command reviews with a capable model on a provider other than the one
 that called it. A provider that is out of budget is skipped. The caller's
 provider is used only after that, and only at that provider's capable model,

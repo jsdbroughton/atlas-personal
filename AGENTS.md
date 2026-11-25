@@ -99,3 +99,11 @@ Handle the verdict as follows:
 - `REFUSE` → stop; this is a different change from the task
 
 Grug does not investigate the repository or implement the cut. Correctness is Momus. How people use it is Ariadne.
+
+## How the three relate
+
+Ariadne judges the outcome a person gets: the flow, what they can recognise, and whether they can finish. That outcome may need more interface and more code. That amount is not complexity.
+
+Momus and Grug judge how the code delivers that outcome. Momus asks whether the plan is sound. Grug asks whether the architecture is the boring one that still delivers the same outcome. Neither cuts the outcome in order to shrink the diff.
+
+A collision is uncommon. It is a clever or unsound way of delivering the outcome, or a plan that changes something other than the outcome. It is not the outcome being larger. Graphic style stays outside Ariadne unless it hides an action or a state.

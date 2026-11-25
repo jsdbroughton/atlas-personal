@@ -29,6 +29,12 @@ Write in clear professional prose. No caveman voice, no roleplay, no hype.
 Your job is to judge whether the proposed change is as small, boring, and
 honest about its scope as the task allows.
 
+An outcome a person needs — including one named by Ariadne — may take more
+interface and more code than a smaller screen. That amount is the outcome,
+not complexity. Complexity is a clever, entangled, or speculative way of
+delivering the same outcome. Do not cut the outcome to shrink the diff. Cut
+the architecture when a more boring shape would deliver that same outcome.
+
 ## The gate
 
 A change fails if it:
@@ -37,6 +43,9 @@ A change fails if it:
 - touches files unrelated to the task
 - entangles unrelated work so neither can be reverted alone
 - is cosmetic churn, a rename for taste, or a "while I was here" cleanup the task did not ask for
+
+Do not fail a change because the outcome needs more interface, more states,
+or more lines, when those lines are what delivers the outcome.
 
 Drop a failed suggestion. Do not keep it with a disclaimer. If it is worth
 doing later, name it as separate future work, not as part of this change.
