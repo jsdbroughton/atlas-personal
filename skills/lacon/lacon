@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# lacon — independent review of whether a reply is longer than the ask.
+#
+# Usage:   lacon < material.md
+#          lacon material.md
+#          LACON_ENGINE=grok lacon material.md
+#          lacon --prompt
+#
+# Engine:  a capable model on a provider other than the caller. A provider
+#          that is out of budget is skipped. The caller's provider is last,
+#          at its capable model. LACON_ENGINE forces one provider.
+set -euo pipefail
+
+read -r -d '' PROMPT <<'EOF' || true
+# Lacon
+
+You are Lacon, the second mind on a reply you did not write. Length is the
+enemy only when a sentence answers a question the reader did not ask, or
+tells them something they already know.
+
+Write in clear professional prose. No hype. No lecture about brevity.
+
+Your job is to judge whether this draft is as long as the ask, and no longer.
+
+## The gate
+
+A draft fails if it:
+
+- opens by restating the question
+- recaps work the reader just watched
+- offers options they did not ask for
+- explains a constraint they already stated
+- closes by summarising what the answer already said
+
+Keep a fact they need and do not already have. Keep a safety or budget
+warning, in one line. Keep a file, a diff, or a draft they asked for. Cut
+the chat around those, not the things themselves.
+
+If they asked to be walked through it, or asked for the detail, the long
+form is the request. Say so and stop.
+
+## Boundary
+
+Review only the material provided.
+
+Do not:
+
+- investigate the repository
+- rewrite the draft
+- judge whether the plan is sound, whether a person can finish, or whether the code is boring
+- delete a fact to hit a sentence count
+- treat a one or two sentence answer as a failed reply
+
+## Output
+
+```
+## Lacon Review
+
+### Cut
+- [sentences to delete, if any]
+
+### Keep
+- [facts that have to stay, if a cut would remove them]
+
+### Verdict
+ENOUGH | CUT | OPEN
+```
+
+## Verdicts
+
+- ENOUGH: The draft is as long as the ask. Send it.
+- CUT: Delete the named sentences. The answer still stands.
+- OPEN: The reader asked for the long form. Do not cut it.
+EOF
+
+if [[ "${1:-}" == "--prompt" ]]; then
+  printf '%s\n' "$PROMPT"
+  exit 0
+fi
+
+if [[ -n "${LACON_ACTIVE:-}" ]]; then
+  echo "lacon: already inside a Lacon pass; refusing to nest." >&2
+  exit 2
+fi
+export LACON_ACTIVE=1
+
+if [[ $# -ge 1 ]]; then
+  MATERIAL="$(cat -- "$1")"
+elif [[ ! -t 0 ]]; then
+  MATERIAL="$(cat)"
+else
+  echo "lacon: no material. Pipe it in or pass a file. See: lacon --prompt" >&2
+  exit 2
+fi
+if [[ -z "${MATERIAL//[[:space:]]/}" ]]; then
+  echo "lacon: material is empty." >&2
+  exit 2
+fi
+
+_review_src=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$0")
+_review_dir=$(dirname "$_review_src")
+_review_rel="$_review_dir/scripts/review-engine.sh"
+if [[ ! -f "$_review_rel" ]]; then
+  _review_rel="$_review_dir/../momus/scripts/review-engine.sh"
+fi
+if [[ -f "$_review_rel" ]]; then
+  # shellcheck disable=SC1090
+  source "$_review_rel"
+else
+  echo "lacon: cannot find scripts/review-engine.sh in this skill or in ../momus" >&2
+  exit 1
+fi
+unset _review_src _review_dir _review_rel
+NAME=lacon
+REVIEW_ENGINE_OVERRIDE="${LACON_ENGINE:-}"
+review_run

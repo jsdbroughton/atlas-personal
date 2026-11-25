@@ -11,7 +11,7 @@ if [[ -n "$atlas_main" && ! -f "$atlas_main/atlas/scripts/sync-agents.py" ]]; th
 fi
 
 mkdir -p "$HOME/.local/bin"
-for name in momus ariadne grug; do
+for name in momus ariadne grug lacon; do
   chmod +x "$repo/skills/$name/$name"
   ln -sfn "$repo/skills/$name/$name" "$HOME/.local/bin/$name"
 done

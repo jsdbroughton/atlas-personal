@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared runner for momus, ariadne, and grug.
+# Shared runner for momus, ariadne, grug, and lacon.
 # Lives in the momus skill: atlas sync copies one skill directory, so a
 # repo-root script would not travel with the synced commands. Ariadne and
 # grug source ../momus/scripts/review-engine.sh, which is the same relative

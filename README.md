@@ -6,7 +6,7 @@ Atlas loads skills from `<atlas-main>/personal/skills/` unless `ATLAS_PERSONAL_D
 
 ## Layout
 
-- `skills/<name>/` — every repo (`momus`, `ariadne`, `grug`, `clone-project-files`, `worktree-named-host`)
+- `skills/<name>/` — every repo (`momus`, `ariadne`, `grug`, `lacon`, `clone-project-files`, `worktree-named-host`)
 - `skills/<repo>/<name>/` — that repo only (`speckle-server-internal/speckle-automate-api`)
 - `skills/momus/scripts/review-engine.sh` — runner for `momus`, `ariadne`, and `grug`
 - `AGENTS.md` — standing instructions for every harness
@@ -23,7 +23,7 @@ Each skill directory that contains a `SKILL.md` directly under `skills/` is link
 
 ## Commands
 
-`install.sh` puts `momus`, `critic` (same command as `momus`), `ariadne`, and `grug` on `~/.local/bin`. Those links stay on the machine.
+`install.sh` puts `momus`, `critic` (same command as `momus`), `ariadne`, `grug`, and `lacon` on `~/.local/bin`. Those links stay on the machine.
 
 The runner lives inside the momus skill. Atlas sync copies one skill directory, so a script outside that directory would be missing from the synced tree. `ariadne` and `grug` load `../momus/scripts/review-engine.sh`. That path is the same in this repo and under a repo's `.agents/skills/`.
 

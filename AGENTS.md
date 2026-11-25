@@ -100,10 +100,37 @@ Handle the verdict as follows:
 
 Grug does not investigate the repository or implement the cut. Correctness is Momus. How people use it is Ariadne.
 
-## How the three relate
+## Independent Lacon Pass
+
+Before sending a reply that explains more than the question asked, send the draft to Lacon as an independent pass on its length.
+
+Lacon is the `lacon` shell command. Pipe it a single block of text containing the ask and the draft:
+
+```
+lacon <<'EOF_MATERIAL'
+ASK: …
+DRAFT: …
+EOF_MATERIAL
+```
+
+Lacon sees only what you pipe in. Wait for the verdict before sending.
+
+Skip a reply that is already one or two sentences. Skip it when the reader asked to be walked through the detail.
+
+Handle the verdict as follows:
+
+- `ENOUGH` → send it
+- `CUT` → delete the named sentences, then send
+- `OPEN` → they asked for the long form; send it
+
+If the reader says an answer was too long, stay at that length until they ask for detail, and run Lacon on the next draft. A file, a diff, or a draft they asked for stays whole. Lacon cuts the chat around it. Lacon does not rewrite the draft.
+
+## How they relate
 
 Ariadne judges the outcome a person gets: the flow, what they can recognise, and whether they can finish. That outcome may need more interface and more code. That amount is not complexity.
 
 Momus and Grug judge how the code delivers that outcome. Momus asks whether the plan is sound. Grug asks whether the architecture is the boring one that still delivers the same outcome. Neither cuts the outcome in order to shrink the diff.
 
 A collision is uncommon. It is a clever or unsound way of delivering the outcome, or a plan that changes something other than the outcome. It is not the outcome being larger. Graphic style stays outside Ariadne unless it hides an action or a state.
+
+Lacon judges the words of the reply. A sound plan, a usable outcome, and a boring diff can still be told in too many sentences. Lacon does not remove a fact the reader needs, and it does not shorten the outcome or the code.
