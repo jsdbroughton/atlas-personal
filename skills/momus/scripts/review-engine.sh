@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 # Shared runner for momus, ariadne, and grug.
+# Lives in the momus skill: atlas sync copies one skill directory, so a
+# repo-root script would not travel with the synced commands. Ariadne and
+# grug source ../momus/scripts/review-engine.sh, which is the same relative
+# path in this repo and under a repo's .agents/skills/.
 #
 # Picks a capable model on a provider other than the one that called it.
 # A provider that is out of usage budget is skipped. The caller's provider

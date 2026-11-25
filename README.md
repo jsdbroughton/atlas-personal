@@ -8,14 +8,16 @@ Atlas loads skills from `<atlas-main>/personal/skills/` unless `ATLAS_PERSONAL_D
 
 - `skills/<name>/` — every repo (`momus`, `ariadne`, `grug`, `clone-project-files`, `worktree-named-host`)
 - `skills/<repo>/<name>/` — that repo only (`speckle-server-internal/speckle-automate-api`)
-- `scripts/review-engine.sh` — runner shared by `momus`, `ariadne`, and `grug`
+- `skills/momus/scripts/review-engine.sh` — runner for `momus`, `ariadne`, and `grug`
 - `CLAUDE.md` — standing instructions; install links `~/.claude/CLAUDE.md` here
 
 ## Commands
 
-`install.sh` puts `momus`, `critic` (same command as `momus`), `ariadne`, and `grug` on `~/.local/bin`. Those links stay on the machine. Each command finds `scripts/review-engine.sh` next to itself, then under `ATLAS_PERSONAL_DIR`.
+`install.sh` puts `momus`, `critic` (same command as `momus`), `ariadne`, and `grug` on `~/.local/bin`. Those links stay on the machine.
 
-A synced copy under a repo's `.agents/skills/` has no engine beside it. Call the commands on `PATH`, or set `ATLAS_PERSONAL_DIR` in the process environment. A value that exists only in `mise.local.toml` does not reach the atlas SessionStart hook.
+The runner lives inside the momus skill. Atlas sync copies one skill directory, so a script outside that directory would be missing from the synced tree. `ariadne` and `grug` load `../momus/scripts/review-engine.sh`. That path is the same in this repo and under a repo's `.agents/skills/`.
+
+`ATLAS_PERSONAL_DIR` tells atlas where the skill tree is. A value that exists only in `mise.local.toml` does not reach the SessionStart hook. The review commands do not need that variable once the skills sit side by side.
 
 ## New machine
 

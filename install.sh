@@ -16,7 +16,7 @@ for name in momus ariadne grug; do
   ln -sfn "$repo/skills/$name/$name" "$HOME/.local/bin/$name"
 done
 ln -sfn "$repo/skills/momus/momus" "$HOME/.local/bin/critic"
-chmod +x "$repo/scripts/review-engine.sh"
+chmod +x "$repo/skills/momus/scripts/review-engine.sh"
 
 claude_md="$HOME/.claude/CLAUDE.md"
 if [[ -L "$claude_md" || ! -e "$claude_md" ]]; then

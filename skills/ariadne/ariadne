@@ -129,18 +129,19 @@ if [[ -z "${MATERIAL//[[:space:]]/}" ]]; then
 fi
 
 _review_src=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$0")
-_review_rel="$(dirname "$_review_src")/../../scripts/review-engine.sh"
+_review_dir=$(dirname "$_review_src")
+_review_rel="$_review_dir/scripts/review-engine.sh"
+if [[ ! -f "$_review_rel" ]]; then
+  _review_rel="$_review_dir/../momus/scripts/review-engine.sh"
+fi
 if [[ -f "$_review_rel" ]]; then
   # shellcheck disable=SC1090
   source "$_review_rel"
-elif [[ -n "${ATLAS_PERSONAL_DIR:-}" && -f "${ATLAS_PERSONAL_DIR}/scripts/review-engine.sh" ]]; then
-  # shellcheck disable=SC1090
-  source "${ATLAS_PERSONAL_DIR}/scripts/review-engine.sh"
 else
-  echo "ariadne: cannot find scripts/review-engine.sh beside this command or in ATLAS_PERSONAL_DIR" >&2
+  echo "ariadne: cannot find scripts/review-engine.sh in this skill or in ../momus" >&2
   exit 1
 fi
-unset _review_src _review_rel
+unset _review_src _review_dir _review_rel
 NAME=ariadne
 REVIEW_ENGINE_OVERRIDE="${ARIADNE_ENGINE:-}"
 review_run
