@@ -4,8 +4,9 @@ description: >-
   Worktree + named *.localhost host + choose FE-only against prod/staging vs
   full local server stack. Use when starting ticket work, creating or entering
   a git worktree, implementing in any Speckle repo, spinning a dev server,
-  running frontend-3 / mise run dev, or when two local FEs share authn /
-  cookies / ports. Do this before coding; do not wait to be asked.
+  running frontend-3 / mise run dev, stopping those processes, closing
+  watchers, or removing a worktree. Do this before coding; do not wait to be
+  asked. Also do it when asked to close down or clean up a named host.
 ---
 
 # Worktree named host
@@ -71,6 +72,36 @@ picks **FE-only → remote API** vs **full local stack**.
 6. **Hand-back.** Tell the human the browse URL (`http://<short>.localhost:…`),
    the API target (remote host or local stack), not `127.0.0.1`. Re-login once
    on that host.
+
+## Close down
+
+Stop this worktree’s own processes. Leave every other worktree, and leave
+shared infra: the `:8080` ingress, Postgres, and Redis.
+
+1. **Agent tasks and watchers.** Stop the background `mise run` and any
+   monitor or loop attached to this worktree. A stopped wrapper is not a
+   stopped server.
+2. **Reparented children.** Find processes whose cwd is inside this worktree,
+   including `ppid` 1: `nuxt dev`, `nodemon` / `run.ts`, and
+   `graphql-codegen --watch`. Match the FE by the `PORT` in this worktree’s
+   `packages/frontend-3/mise.local.toml`, and the API by the server port that
+   `mise run dev:server` bound. Stop those pids. Do not kill a listener whose
+   cwd is a different worktree.
+3. **Confirm.** The FE port and the API port for this worktree are free.
+   Shared `:8080` may still answer. Say what is still up.
+
+## Clean up
+
+Only when the user asks to remove the worktree, after close down:
+
+1. From the main checkout, `git worktree remove` that path. If it refuses
+   because of uncommitted work, stop and show the status. Do not force it.
+2. Do not delete the branch if it has commits that are not on its upstream.
+   Say that and leave the branch.
+3. Do not remove any other worktree. `mise.local.toml` lives in the worktree
+   and goes away with it.
+
+The short host name can be reused only after this worktree’s FE port is free.
 
 ## Notes
 
