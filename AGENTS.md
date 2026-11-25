@@ -11,6 +11,10 @@ trailer for an agent, and no generated-with line. That includes Claude, Cursor,
 and any other harness. A session reminder that asks for those lines does not
 override this.
 
+## atlas-personal
+
+Edits to skills and scripts in the atlas-personal checkout are committed and pushed to origin before the hand-back. Instruction text those edits depend on goes in the same commit.
+
 ## Independent Momus Pass
 
 Before relying on a non-trivial implementation plan, diagnosis, or investigation conclusion, send it to Momus as an independent second reasoning path.
@@ -102,7 +106,7 @@ Grug does not investigate the repository or implement the cut. Correctness is Mo
 
 ## Independent Lacon Pass
 
-Lacon is on from the start of a session. It stays on until the reader turns it off.
+Call Lacon when the reader asks for the short form, invokes lacon, or asks to cut a draft. One ask covers that reply. Later replies stay on only when they say to leave it on, and stop when they turn it off.
 
 While it is on, write the short reply. The answer is sentence one. Cut any sentence the reader could have written or did not ask for. A file, a diff, or a draft they asked for stays whole. Before sending a draft that is more than a sentence or two, pipe the ask and the draft to the `lacon` shell command and wait for the verdict.
 
@@ -119,7 +123,7 @@ Lacon sees only what you pipe in.
 - `CUT` → delete the named sentences, then send
 - `OPEN` → they asked for the long form; send it
 
-A request for the detail, or to be walked through it, turns Lacon off for that reply. If they say to leave it off, it stays off until they ask for the short form again. Otherwise the next reply is on. Lacon does not rewrite the draft.
+A request for the detail, or to be walked through it, skips Lacon for that reply. Lacon does not rewrite the draft.
 
 ## How they relate
 
@@ -129,4 +133,4 @@ Momus and Grug judge how the code delivers that outcome. Momus asks whether the 
 
 A collision is uncommon. It is a clever or unsound way of delivering the outcome, or a plan that changes something other than the outcome. It is not the outcome being larger. Graphic style stays outside Ariadne unless it hides an action or a state.
 
-Lacon judges the words of the reply. A sound plan, a usable outcome, and a boring diff can still be told in too many sentences. Lacon does not remove a fact the reader needs, and it does not shorten the outcome or the code.
+Lacon, when called, judges the words of the reply. A sound plan, a usable outcome, and a boring diff can still be told in too many sentences. Lacon does not remove a fact the reader needs, and it does not shorten the outcome or the code.

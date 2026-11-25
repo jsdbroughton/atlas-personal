@@ -1,13 +1,12 @@
 ---
 name: lacon
 description: >-
-  Independent Lacon pass on a reply. Lacon is on from the start of a session
-  and stays on until the reader turns it off. While it is on, write the short
-  reply, and before sending a draft of more than a sentence or two pipe the
-  ask and the draft to the `lacon` shell command and wait for ENOUGH, CUT, or
-  OPEN. A request for the detail turns it off for that reply. If they say to
-  leave it off, it stays off until they ask for the short form again. Lacon
-  cuts sentences. It does not judge the plan, the outcome, or the code.
+  Independent pass on reply length. Use when the reader asks for the short
+  form, invokes lacon, or asks to cut a draft. One ask covers that reply.
+  Leave it on for later replies only when they say so. While it is on, pipe
+  a draft of more than a sentence or two to the `lacon` command and wait for
+  ENOUGH, CUT, or OPEN. Lacon cuts sentences. It does not judge the plan,
+  the outcome, or the code.
 ---
 
 # Lacon
@@ -15,9 +14,9 @@ description: >-
 Lacon is the second mind on a reply. The failure is a sentence the reader
 could have written, or one that answers a question they did not ask.
 
-Before sending a draft that explains more than the question, send it to
-Lacon. The command is `lacon`. It runs a fresh headless process and sees
-only what you pipe in.
+When this pass was asked for, send the draft to Lacon before a reply of
+more than a sentence or two. The command is `lacon`. It runs a fresh
+headless process and sees only what you pipe in.
 
 ```bash
 lacon <<'EOF_MATERIAL'
@@ -33,10 +32,9 @@ self-critique.
 - `CUT` — delete the named sentences, then send
 - `OPEN` — the reader asked for the long form; send it
 
-Lacon is on from the start. It stays on until the reader turns it off. A
-request for the detail turns it off for that reply. If they say to leave it
-off, it stays off until they ask for the short form again. Otherwise the
-next reply is on.
+One ask covers that reply. Later replies stay on only when the reader says
+to leave it on, and stop when they turn it off. A request for the detail,
+or to be walked through it, skips this pass for that reply.
 
 Lacon does not investigate, rewrite the draft, or drop a fact the reader
 needs. A file, a diff, or a draft they asked for stays whole. Cut the chat
