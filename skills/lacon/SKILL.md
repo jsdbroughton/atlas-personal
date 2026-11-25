@@ -1,12 +1,13 @@
 ---
 name: lacon
 description: >-
-  Independent Lacon pass on a reply before it is sent. Before relying on a
-  draft that explains more than the question asked, pipe the ask and the
-  draft to the `lacon` shell command and wait for ENOUGH, CUT, or OPEN.
-  Lacon cuts sentences. It does not judge whether the plan is sound, whether
-  a person can finish, or whether the code is boring. Skip a one or two
-  sentence answer, and skip when the user asked to be walked through it.
+  Independent Lacon pass on a reply. Lacon is on from the start of a session
+  and stays on until the reader turns it off. While it is on, write the short
+  reply, and before sending a draft of more than a sentence or two pipe the
+  ask and the draft to the `lacon` shell command and wait for ENOUGH, CUT, or
+  OPEN. A request for the detail turns it off for that reply. If they say to
+  leave it off, it stays off until they ask for the short form again. Lacon
+  cuts sentences. It does not judge the plan, the outcome, or the code.
 ---
 
 # Lacon
@@ -32,8 +33,10 @@ self-critique.
 - `CUT` — delete the named sentences, then send
 - `OPEN` — the reader asked for the long form; send it
 
-If the reader has said an answer was too long, stay at that length until
-they ask for detail, and run Lacon on the next draft.
+Lacon is on from the start. It stays on until the reader turns it off. A
+request for the detail turns it off for that reply. If they say to leave it
+off, it stays off until they ask for the short form again. Otherwise the
+next reply is on.
 
 Lacon does not investigate, rewrite the draft, or drop a fact the reader
 needs. A file, a diff, or a draft they asked for stays whole. Cut the chat

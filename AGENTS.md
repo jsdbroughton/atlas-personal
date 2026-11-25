@@ -102,9 +102,9 @@ Grug does not investigate the repository or implement the cut. Correctness is Mo
 
 ## Independent Lacon Pass
 
-Before sending a reply that explains more than the question asked, send the draft to Lacon as an independent pass on its length.
+Lacon is on from the start of a session. It stays on until the reader turns it off.
 
-Lacon is the `lacon` shell command. Pipe it a single block of text containing the ask and the draft:
+While it is on, write the short reply. The answer is sentence one. Cut any sentence the reader could have written or did not ask for. A file, a diff, or a draft they asked for stays whole. Before sending a draft that is more than a sentence or two, pipe the ask and the draft to the `lacon` shell command and wait for the verdict.
 
 ```
 lacon <<'EOF_MATERIAL'
@@ -113,17 +113,13 @@ DRAFT: …
 EOF_MATERIAL
 ```
 
-Lacon sees only what you pipe in. Wait for the verdict before sending.
-
-Skip a reply that is already one or two sentences. Skip it when the reader asked to be walked through the detail.
-
-Handle the verdict as follows:
+Lacon sees only what you pipe in.
 
 - `ENOUGH` → send it
 - `CUT` → delete the named sentences, then send
 - `OPEN` → they asked for the long form; send it
 
-If the reader says an answer was too long, stay at that length until they ask for detail, and run Lacon on the next draft. A file, a diff, or a draft they asked for stays whole. Lacon cuts the chat around it. Lacon does not rewrite the draft.
+A request for the detail, or to be walked through it, turns Lacon off for that reply. If they say to leave it off, it stays off until they ask for the short form again. Otherwise the next reply is on. Lacon does not rewrite the draft.
 
 ## How they relate
 
