@@ -1,0 +1,5 @@
+# Live-verified. Identity, GitHub link state and the valid createFunction template ids.
+query {
+  activeUser { id name automateInfo { hasAutomateGithubApp availableGithubOrgs } }
+  serverInfo { version automate { availableFunctionTemplates { id language title url } } }
+}

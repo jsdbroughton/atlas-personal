@@ -1,0 +1,14 @@
+# Live-verified. vars: {"id": "<functionId>"}. inputSchema is the JSON Schema the
+# automation's parameters must satisfy; releases are newest first.
+query ($id: ID!) {
+  automateFunction(id: $id) {
+    id
+    name
+    description
+    isFeatured
+    repo { owner name url }
+    creator { id name }
+    workspaceIds
+    releases(limit: 10) { totalCount cursor items { id versionTag commitId createdAt inputSchema } }
+  }
+}

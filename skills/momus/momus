@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# momus — independent review of a plan, diagnosis or conclusion.
+# `critic` is the same command.
+#
+# Usage:   momus < material.md
+#          momus material.md
+#          MOMUS_ENGINE=grok momus material.md   # force an engine
+#          momus --prompt           print the Momus prompt (no backend is run)
+#
+# Engine:  a capable model on a provider other than the caller. A provider
+#          that is out of budget is skipped. The caller's provider is last,
+#          at its capable model, never a lesser model. MOMUS_ENGINE forces
+#          one provider. There is no Claude default.
+#
+# The material should contain the original objective, relevant constraints,
+# and the proposed plan or conclusion. The reviewer runs as a fresh headless
+# process in an empty directory, so it sees only what you pass in.
+set -euo pipefail
+
+read -r -d '' PROMPT <<'EOF' || true
+# Momus
+
+You are Momus. When the gods finished a thing they were proud of, you asked
+to see inside it. You are the second mind on a plan you did not write. Pride
+in the plan is not a finding. A sound plan is cleared.
+
+Your job is to challenge a plan, diagnosis, or conclusion produced by another agent before it is relied upon.
+
+## Review For
+
+- logical errors
+- untested assumptions
+- unjustified confidence
+- scope drift
+- consequential missing cases
+- conflict with any stated constraints or objectives
+
+Focus on material problems. Do not manufacture objections.
+
+## Boundary
+
+Review only the material provided.
+
+Do not:
+
+- investigate assumptions yourself
+- implement fixes
+- redesign the solution
+- load broad additional context
+- claim knowledge of files or evidence you have not seen
+
+Your job is to identify what has not been established, not establish it.
+
+## Output
+
+```
+## Momus Review
+
+### Issues
+- [material issue, if any]
+
+### Untested Assumptions
+- [assumption]: [why it matters if wrong]
+
+### Verdict
+PROCEED | REVISE | HALT
+
+[If REVISE or HALT: what needs to change before proceeding]
+```
+
+## Verdicts
+
+- PROCEED: No material reasoning problem identified from the supplied information.
+- REVISE: A material weakness should be addressed before continuing.
+- HALT: A foundational problem makes the current direction unsafe or wasteful.
+
+If there are no material issues, say so. Do not invent minor criticism to justify the review.
+EOF
+
+if [[ "${1:-}" == "--prompt" ]]; then
+  printf '%s\n' "$PROMPT"
+  exit 0
+fi
+
+# A Momus pass must not call momus or critic.
+if [[ -n "${MOMUS_ACTIVE:-${CRITIC_ACTIVE:-}}" ]]; then
+  echo "momus: already inside a Momus pass; refusing to nest." >&2
+  exit 2
+fi
+export MOMUS_ACTIVE=1 CRITIC_ACTIVE=1
+
+if [[ $# -ge 1 ]]; then
+  MATERIAL="$(cat -- "$1")"
+elif [[ ! -t 0 ]]; then
+  MATERIAL="$(cat)"
+else
+  echo "momus: no material. Pipe it in or pass a file. See: momus --prompt" >&2
+  exit 2
+fi
+if [[ -z "${MATERIAL//[[:space:]]/}" ]]; then
+  echo "momus: material is empty." >&2
+  exit 2
+fi
+
+_review_src=$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$0")
+_review_rel="$(dirname "$_review_src")/../../scripts/review-engine.sh"
+if [[ -f "$_review_rel" ]]; then
+  # shellcheck disable=SC1090
+  source "$_review_rel"
+elif [[ -n "${ATLAS_PERSONAL_DIR:-}" && -f "${ATLAS_PERSONAL_DIR}/scripts/review-engine.sh" ]]; then
+  # shellcheck disable=SC1090
+  source "${ATLAS_PERSONAL_DIR}/scripts/review-engine.sh"
+else
+  echo "momus: cannot find scripts/review-engine.sh beside this command or in ATLAS_PERSONAL_DIR" >&2
+  exit 1
+fi
+unset _review_src _review_rel
+NAME=momus
+REVIEW_ENGINE_OVERRIDE="${MOMUS_ENGINE:-${CRITIC_ENGINE:-}}"
+review_run

@@ -1,0 +1,10 @@
+# Schema-verified only. Creates the automation shell; the wizard creates it
+# disabled, adds the revision, then enables it.
+# vars: {"projectId": "...", "input": {"name": "...", "enabled": false}}
+mutation ($projectId: ID!, $input: ProjectAutomationCreateInput!) {
+  projectMutations {
+    automationMutations(projectId: $projectId) {
+      create(input: $input) { id name enabled }
+    }
+  }
+}

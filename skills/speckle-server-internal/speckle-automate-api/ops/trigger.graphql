@@ -1,0 +1,10 @@
+# Schema-verified only. Fakes a "version created" on versionId (null = the
+# newest version across the trigger models; a given version must be on one). Returns the run id.
+# vars: {"projectId": "...", "automationId": "...", "versionId": null}
+mutation ($projectId: ID!, $automationId: ID!, $versionId: ID) {
+  projectMutations {
+    automationMutations(projectId: $projectId) {
+      trigger(automationId: $automationId, versionId: $versionId)
+    }
+  }
+}

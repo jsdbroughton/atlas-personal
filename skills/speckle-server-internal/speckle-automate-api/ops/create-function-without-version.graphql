@@ -1,0 +1,8 @@
+# Schema-verified only. SERVER ADMINS ONLY (canUpdateServerSettings). Registers a
+# function with no repo of its own and returns the token CI publishes releases with.
+# vars: {"input": {"name": "...", "description": "..."}}
+mutation ($input: CreateAutomateFunctionWithoutVersionInput!) {
+  automateMutations {
+    createFunctionWithoutVersion(input: $input) { functionId functionToken }
+  }
+}

@@ -1,0 +1,8 @@
+# Schema-verified only. vars: {"projectId": "...", "input": {"id": "<automationId>", "enabled": true}}
+mutation ($projectId: ID!, $input: ProjectAutomationUpdateInput!) {
+  projectMutations {
+    automationMutations(projectId: $projectId) {
+      update(input: $input) { id name enabled }
+    }
+  }
+}

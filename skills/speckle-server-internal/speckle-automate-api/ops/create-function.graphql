@@ -1,0 +1,9 @@
+# Schema-verified only (never run by the skill author). Writes: creates a GitHub
+# repo from the template under `org` (null = the user's personal account).
+# vars: {"input": {"name": "...", "template": "Python" | ".net", "description": "...",
+#        "supportedSourceApps": [], "tags": [], "logo": null, "org": null}}
+mutation ($input: CreateAutomateFunctionInput!) {
+  automateMutations {
+    createFunction(input: $input) { id name repo { owner name url } }
+  }
+}

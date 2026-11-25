@@ -1,0 +1,21 @@
+# Live-verified. vars: {"projectId": "<projectId>", "automationId": "<automationId>"}
+query ($projectId: String!, $automationId: String!) {
+  project(id: $projectId) {
+    automation(id: $automationId) {
+      id
+      name
+      enabled
+      runs(limit: 5) {
+        totalCount
+        items {
+          id
+          status
+          createdAt
+          updatedAt
+          trigger { ... on VersionCreatedTrigger { version { id } model { id name } } }
+          functionRuns { id status statusMessage elapsed contextView results }
+        }
+      }
+    }
+  }
+}

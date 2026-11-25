@@ -1,0 +1,19 @@
+# Live-verified. vars: {"slug": "<workspace slug>", "search": null, "cursor": null}
+query ($slug: String!, $search: String, $cursor: String) {
+  workspaceBySlug(slug: $slug) {
+    id
+    name
+    automateFunctions(limit: 25, cursor: $cursor, filter: { search: $search, includeFeatured: false, requireRelease: false }) {
+      totalCount
+      cursor
+      items {
+        id
+        name
+        repo { owner name url }
+        supportedSourceApps
+        tags
+        releases(limit: 1) { totalCount items { id versionTag createdAt } }
+      }
+    }
+  }
+}

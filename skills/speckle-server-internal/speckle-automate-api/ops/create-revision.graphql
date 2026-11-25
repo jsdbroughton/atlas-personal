@@ -1,0 +1,12 @@
+# Schema-verified only. Binds trigger(s) and function release(s) to the automation.
+# vars: {"projectId": "...", "input": {"automationId": "...",
+#   "triggerDefinitions": {"version": 1, "definitions": [{"type": "VERSION_CREATED", "modelId": "..."}]},
+#   "functions": [{"functionId": "...", "functionReleaseId": "...",
+#                  "parameters": "{\"key\":\"value\"}", "paramsEncrypted": false}]}}
+mutation ($projectId: ID!, $input: ProjectAutomationRevisionCreateInput!) {
+  projectMutations {
+    automationMutations(projectId: $projectId) {
+      createRevision(input: $input) { id }
+    }
+  }
+}

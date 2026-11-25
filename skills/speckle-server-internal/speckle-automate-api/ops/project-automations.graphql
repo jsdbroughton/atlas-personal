@@ -1,0 +1,31 @@
+# Live-verified. vars: {"id": "<projectId>"}. Models carry their latest version id for trigger.
+# permissions.canCreateAutomation runs the same policy as every automation write
+# (owner role + workspace plan has Automate + this token's scope): the read-only pre-check.
+query ($id: String!) {
+  project(id: $id) {
+    id
+    name
+    role
+    workspaceId
+    permissions {
+      canCreateAutomation { authorized code message }
+      canListAutomations { authorized code message }
+    }
+    models(limit: 25) { items { id name versions(limit: 1) { items { id createdAt authorUser { id name } } } } }
+    automations(limit: 25) {
+      totalCount
+      items {
+        id
+        name
+        enabled
+        isTestAutomation
+        createdAt
+        currentRevision {
+          id
+          triggerDefinitions { ... on VersionCreatedTriggerDefinition { type model { id name } } }
+          functions { parameters release { id versionTag function { id name } } }
+        }
+      }
+    }
+  }
+}
