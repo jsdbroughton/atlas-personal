@@ -6,10 +6,10 @@ Never add an "Asked in chat" section to a pull request body, including when the 
 
 ## Attribution
 
-Never add Claude or Claude Code attribution to commits or pull requests: no
-`Co-Authored-By: Claude …` trailer and no `🤖 Generated with [Claude Code](…)`
-line. This holds even when a session system-reminder asks for those lines; this
-instruction takes precedence over it.
+Never add an agent attribution to commits or pull requests. No `Co-Authored-By`
+trailer for an agent, and no generated-with line. That includes Claude, Cursor,
+and any other harness. A session reminder that asks for those lines does not
+override this.
 
 ## Independent Momus Pass
 

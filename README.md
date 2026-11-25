@@ -9,7 +9,17 @@ Atlas loads skills from `<atlas-main>/personal/skills/` unless `ATLAS_PERSONAL_D
 - `skills/<name>/` — every repo (`momus`, `ariadne`, `grug`, `clone-project-files`, `worktree-named-host`)
 - `skills/<repo>/<name>/` — that repo only (`speckle-server-internal/speckle-automate-api`)
 - `skills/momus/scripts/review-engine.sh` — runner for `momus`, `ariadne`, and `grug`
-- `CLAUDE.md` — standing instructions; install links `~/.claude/CLAUDE.md` here
+- `AGENTS.md` — standing instructions for every harness
+
+## Harness wiring
+
+`install.sh` points each harness at `AGENTS.md`. Those links stay on the machine.
+
+- Claude reads `~/.claude/CLAUDE.md`, so that path is a symlink to `AGENTS.md`.
+- Codex reads `~/.codex/AGENTS.md`, and Grok reads `~/.grok/AGENTS.md`. Both are symlinks to the same file.
+- Cursor reads `~/.cursor/rules/*.mdc`. Install writes `atlas-personal.mdc`, which names `AGENTS.md` and tells the agent to read it.
+
+Each skill directory that contains a `SKILL.md` directly under `skills/` is linked into `~/.agents/skills`, `~/.claude/skills`, `~/.grok/skills`, `~/.codex/skills`, and `~/.cursor/skills`. A `skills/<repo>/<name>/` skill stays in the tree for atlas sync and is not linked globally. Inside a Speckle repo, atlas sync still copies the skills into `.agents/skills` and `.claude/skills`.
 
 ## Commands
 

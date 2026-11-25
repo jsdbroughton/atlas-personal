@@ -10,7 +10,7 @@ if [[ -n "$atlas_main" && ! -f "$atlas_main/atlas/scripts/sync-agents.py" ]]; th
   exit 1
 fi
 
-mkdir -p "$HOME/.local/bin" "$HOME/.claude"
+mkdir -p "$HOME/.local/bin"
 for name in momus ariadne grug; do
   chmod +x "$repo/skills/$name/$name"
   ln -sfn "$repo/skills/$name/$name" "$HOME/.local/bin/$name"
@@ -18,18 +18,62 @@ done
 ln -sfn "$repo/skills/momus/momus" "$HOME/.local/bin/critic"
 chmod +x "$repo/skills/momus/scripts/review-engine.sh"
 
-claude_md="$HOME/.claude/CLAUDE.md"
-if [[ -L "$claude_md" || ! -e "$claude_md" ]]; then
-  ln -sfn "$repo/CLAUDE.md" "$claude_md"
-elif [[ -f "$claude_md" ]]; then
-  bak="$HOME/.claude/CLAUDE.md.bak.$(date +%Y%m%d%H%M%S)"
-  mv "$claude_md" "$bak"
-  ln -sfn "$repo/CLAUDE.md" "$claude_md"
-  echo "install: moved previous CLAUDE.md to $bak"
-else
-  echo "install: $claude_md exists and is not a file or link" >&2
-  exit 1
-fi
+# Point a harness's required filename at AGENTS.md. The repo keeps one file.
+link_file() {
+  local target="$1" dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  if [[ -L "$dest" || ! -e "$dest" ]]; then
+    ln -sfn "$target" "$dest"
+  elif [[ -f "$dest" ]]; then
+    local bak="${dest}.bak.$(date +%Y%m%d%H%M%S)"
+    mv "$dest" "$bak"
+    ln -sfn "$target" "$dest"
+    echo "install: moved previous $dest to $bak"
+  else
+    echo "install: $dest exists and is not a file or link" >&2
+    exit 1
+  fi
+}
+
+link_file "$repo/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+link_file "$repo/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link_file "$repo/AGENTS.md" "$HOME/.grok/AGENTS.md"
+
+cursor_rule="$HOME/.cursor/rules/atlas-personal.mdc"
+mkdir -p "$(dirname "$cursor_rule")"
+cat >"$cursor_rule" <<EOF
+---
+description: Personal standing instructions live in AGENTS.md
+alwaysApply: true
+---
+
+Follow the standing instructions in \`$repo/AGENTS.md\`. Read that file. It applies in every harness.
+EOF
+
+# Every-repo skills only. A skills/<repo>/<name> directory stays for atlas sync.
+link_skill() {
+  local src="$1" dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  if [[ -L "$dest" || ! -e "$dest" ]]; then
+    ln -sfn "$src" "$dest"
+  else
+    echo "install: left existing $dest in place"
+  fi
+}
+
+for skill in "$repo"/skills/*; do
+  [[ -f "$skill/SKILL.md" ]] || continue
+  name=$(basename "$skill")
+  for root in \
+    "$HOME/.agents/skills" \
+    "$HOME/.claude/skills" \
+    "$HOME/.grok/skills" \
+    "$HOME/.codex/skills" \
+    "$HOME/.cursor/skills"
+  do
+    link_skill "$skill" "$root/$name"
+  done
+done
 
 python3 - "$HOME/.zshenv" "$repo" <<'PY'
 import pathlib, shlex, sys
@@ -70,4 +114,4 @@ if [[ -n "$atlas_main" ]]; then
   fi
 fi
 
-echo "install: commands on ~/.local/bin, CLAUDE.md linked, ATLAS_PERSONAL_DIR=$repo"
+echo "install: commands on ~/.local/bin, harnesses pointed at AGENTS.md, ATLAS_PERSONAL_DIR=$repo"
