@@ -11,6 +11,16 @@ trailer for an agent, and no generated-with line. That includes Claude, Cursor,
 and any other harness. A session reminder that asks for those lines does not
 override this.
 
+The harness appends these after the write. Read the result back and delete
+them before the hand-back:
+
+- After `git commit`, if the message contains an agent `Co-authored-by` trailer,
+  amend it off before push.
+- After `gh pr create` or `gh pr edit`, if the live body contains
+  `Made with [Cursor](https://cursor.com)` or any other "Made with" / "Generated
+  with" line, delete that line and write the body back. Check once more after
+  the edit. Leave `Reviewed at` as the last line when the risk check requires it.
+
 ## atlas-personal
 
 Edits to skills and scripts in the atlas-personal checkout are committed and pushed to origin before the hand-back. Instruction text those edits depend on goes in the same commit.
