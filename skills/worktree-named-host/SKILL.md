@@ -181,11 +181,13 @@ After the stop, and only in **close down and clean up**:
   committed file lacks it (the error is `nuxt: command not found`), add
   `_.path = ["../../node_modules/.bin"]` under `[env]` in that package's
   gitignored `mise.local.toml` instead of editing the tracked file.
-- `post-checkout` can stop at its seed step. Until
-  `jbr/seed-worktree-missing-file` merges, the seed script runs `cp` on
-  `packages/server/multiregion.json` even when the main checkout lacks it.
-  The task then fails before `mise install` and `pnpm install`. Run the
-  remaining `post-checkout` steps by hand. A fresh worktree also has no husky
+- `post-checkout` can stop at its seed step. When the main checkout has no
+  `packages/server/multiregion.json`, the seed script still runs `cp` on that
+  path, because `nullglob` drops only globs that match nothing, not literal
+  paths. The task then fails before `mise install` and `pnpm install`. The
+  package `mise.local.toml` files are already seeded at that point, so run the
+  remaining `post-checkout` steps by hand: `mise install`, `pnpm install`,
+  `pnpm build:public:libs`, `pnpm --filter @speckle/graphql-explorer build`. A fresh worktree also has no husky
   hooks until `pnpm install` has run.
 - `graphql-codegen --watch` rewrites `packages/frontend-3/lib/common/generated/gql/*`
   from the local schema on boot. That diff is not part of the ticket. Leave
