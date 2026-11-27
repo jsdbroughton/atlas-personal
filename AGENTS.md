@@ -23,7 +23,15 @@ them before the hand-back:
 
 ## atlas-personal
 
-Edits to skills and scripts in the atlas-personal checkout are committed and pushed to origin before the hand-back. Instruction text those edits depend on goes in the same commit.
+Edits to skills and scripts in the atlas-personal checkout reach `origin/main` as one squash commit from a pull request, before the hand-back. Use the same path when the session is doing the work on its own and nobody else will review.
+
+1. Branch from current `origin/main`.
+2. Commit on that branch. Instruction text the change depends on goes in the same commit.
+3. Push the branch and open a pull request into `main`.
+4. Squash-merge it (`gh pr merge --squash --subject … --body …`) in the same session. This repo asks for no review.
+5. Check out `main` and pull, so the local checkout matches `origin/main`.
+
+`main` shows that squash commit and nothing from the branch. Pass the squash subject and body yourself so the message stays free of agent attribution. `main` accepts a pull request only, and squash is the only merge method.
 
 ## Independent Momus Pass
 
