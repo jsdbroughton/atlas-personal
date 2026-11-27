@@ -185,9 +185,21 @@ After the stop, and only in **close down and clean up**:
   `packages/server/multiregion.json`, the seed script still runs `cp` on that
   path, because `nullglob` drops only globs that match nothing, not literal
   paths. The task then fails before `mise install` and `pnpm install`. The
-  package `mise.local.toml` files are already seeded at that point, so run the
-  remaining `post-checkout` steps by hand: `mise install`, `pnpm install`,
-  `pnpm build:public:libs`, `pnpm --filter @speckle/graphql-explorer build`. A fresh worktree also has no husky
+  repo fix was closed unmerged, so this skill carries the patched copy:
+  [`scripts/seed-worktree-local-config.sh`](scripts/seed-worktree-local-config.sh),
+  which is the repo script plus `[[ -e "$src" ]] || continue`. In a
+  speckle-server-internal worktree, run that copy in place of the repo's seed
+  step, then the rest of `post-checkout` by hand:
+
+  ```bash
+  bash <this skill's dir>/scripts/seed-worktree-local-config.sh
+  mise install && pnpm install && pnpm build:public:libs && pnpm --filter @speckle/graphql-explorer build
+  ```
+
+  Running `mise run post-checkout` first is fine. When it stops at the seed
+  step, the files it copied before failing stay in place, and the patched copy
+  skips them. If the repo script changes upstream, diff it against this copy
+  before trusting the copy. A fresh worktree also has no husky
   hooks until `pnpm install` has run.
 - `graphql-codegen --watch` rewrites `packages/frontend-3/lib/common/generated/gql/*`
   from the local schema on boot. That diff is not part of the ticket. Leave
