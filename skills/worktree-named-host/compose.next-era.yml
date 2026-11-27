@@ -1,0 +1,13 @@
+# Next-era host ports. App era keeps the ports in docker-compose-deps.yml.
+# !override replaces the published list. Compose appends ports otherwise, and
+# the next project would still bind 5432, 6379, and 9000.
+services:
+  postgres:
+    ports: !override
+      - '127.0.0.1:5433:5432'
+  redis:
+    ports: !override
+      - '127.0.0.1:6380:6379'
+  garage:
+    ports: !override
+      - '127.0.0.1:9001:9000'

@@ -63,6 +63,20 @@ picks **FE-only → remote API** vs **full local stack**.
    or `speckle-next/`. Do this before reusing `:3000`, because it often
    belongs to a next worktree.
 
+   **Deps follow the era.** App era publishes Postgres `5432`, Valkey `6379`,
+   and Garage `9000` from the `speckle-server-internal` main checkout. Next
+   era publishes `5433`, `6380`, and `9001` from the `speckle-next` main
+   checkout. Recipe: [`next-era-deps.md`](next-era-deps.md).
+
+   On every full local stack, read this worktree's
+   `packages/server/mise.local.toml`. Next era keeps `POSTGRES_URL`,
+   `REDIS_URL`, and `S3_ENDPOINT` on `5433`, `6380`, and `9001`, including
+   keys an earlier run left on `5432`. App era keeps the defaults.
+   Frontend-only work sets none of these. When project `speckle-next` is
+   still published on `5432`, recreate it from the next main checkout with
+   the next-era compose file before the app era starts: same project, same
+   volume, next-era ports.
+
 4. **Port + `mise.local.toml` for that mode.**
 
    - **FE-only → remote:** set `HOST = "<short>.localhost"`. Set `PORT` to a
@@ -85,8 +99,10 @@ picks **FE-only → remote API** vs **full local stack**.
      set both `NUXT_PUBLIC_BASE_URL` and `NUXT_PUBLIC_API_ORIGIN` to
      `http://<short>.localhost:8080`. Leave Nuxt `PORT` at `8081` unless taken
      — then pick a free port and say so. Ingress has no `server_name` gate;
-     Host header must reach Vite (next step). Start deps +
-     `mise run dev:server` and `mise run dev:frontend-3` (or equivalent).
+     Host header must reach Vite (next step). Start this era's deps
+     ([`next-era-deps.md`](next-era-deps.md) for next era; `pnpm dev:docker:up`
+     from the app-era main checkout otherwise), then `mise run dev:server`
+     and `mise run dev:frontend-3` (or equivalent).
 
    - **Full local stack on alternative ports:** use this when the shared
      ingress is busy. Docker nginx on `:8080` (`lsof` shows it as colima's
@@ -108,10 +124,11 @@ picks **FE-only → remote API** vs **full local stack**.
      `FRONTEND_ORIGIN = "http://<short>.localhost:<fe>"`. These override the
      repo-root `127.0.0.1:8080` defaults for this worktree only.
 
-     Postgres, Redis, object storage and maildev stay shared, so start only
-     `dev:server` and `dev:frontend-3`. When the FE port changes, update
-     `FRONTEND_ORIGIN` and restart both. Check with `serverInfo { canonicalUrl }`
-     on the API port.
+     Same-era Postgres, Valkey, Garage, and maildev stay on that era's ports,
+     so start only `dev:server` and `dev:frontend-3`. Next era uses its own
+     project ([`next-era-deps.md`](next-era-deps.md)). When the FE port
+     changes, update `FRONTEND_ORIGIN` and restart both. Check with
+     `serverInfo { canonicalUrl }` on the API port.
 
    Done when no other listener owns the chosen FE port and the keys match the
    mode. Hand-back URL uses `<short>.localhost`, never bare `127.0.0.1`.
@@ -128,14 +145,15 @@ picks **FE-only → remote API** vs **full local stack**.
    reports a blocked host.
 
 6. **Hand-back.** Tell the human the browse URL (`http://<short>.localhost:…`),
-   the API target (remote host or local stack), not `127.0.0.1`. Re-login once
-   on that host.
+   the API target (remote host or local stack), and for a local server the
+   era's Postgres, Valkey, and Garage ports. The browse URL uses
+   `<short>.localhost`. Re-login once on that host.
 
 ## Two ways to stop
 
 Both modes stop this worktree’s processes and leave every other worktree
-alone, including the shared `:8080` ingress, Postgres, and Redis. They
-differ in what remains on disk.
+alone, including both eras' Postgres, Valkey, and Garage, and the `:8080`
+ingress. They differ in what remains on disk.
 
 **Close down** — another session will pick this up. Stop processes only.
 Keep the worktree, the branch, uncommitted work, and `mise.local.toml`. The
@@ -153,8 +171,8 @@ the worktree. Do not do this when the user only asked to close down.
    FE by the `PORT` in this worktree’s `packages/frontend-3/mise.local.toml`,
    and the API by the server port that `mise run dev:server` bound. Stop
    those pids. Do not kill a listener whose cwd is a different worktree.
-3. Confirm the FE port and the API port for this worktree are free. Shared
-   `:8080` may still answer.
+3. Confirm the FE port and the API port for this worktree are free. The
+   `:8080` ingress and both eras' dep containers keep running.
 
 For **close down**, hand back the worktree path, branch, named host, and
 whether the tree is dirty. Do not remove anything else.
