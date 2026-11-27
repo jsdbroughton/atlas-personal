@@ -42,6 +42,8 @@ picks **FE-only → remote API** vs **full local stack**.
    | **FE-only → remote** | Change is frontend-3 / viewer UI only; no server, GraphQL schema, migration, or worker work in the ticket; need real projects/models/auth that local seed won’t match cheaply. Prefer staging when prod risk or unreleased API; use prod (`https://app.speckle.systems`) when that is the house pattern for FE spikes. |
    | **Full local stack** | Ticket touches `packages/server` (or a shared API contract the FE must call); need migrations, local feature flags, queues, multi-region, importers; debugging auth / CORS / same-origin / nginx; offline or must not hit remote. |
 
+   | **Full local stack on alternative ports** | Full local stack is needed, but another worktree (in this repo or `speckle-next`) already holds `:8081` or `:3000` behind the shared `:8080` ingress. Several features in flight at once is the normal case, so check before you pick plain full local stack. |
+
    Defaults: pure UI ticket → **FE-only → remote**. Any server file in scope →
    **full local stack**.
 
@@ -60,6 +62,31 @@ picks **FE-only → remote API** vs **full local stack**.
      Host header must reach Vite (next step). Start deps +
      `mise run dev:server` and `mise run dev:frontend-3` (or equivalent).
 
+   - **Full local stack on alternative ports:** use this when the shared
+     ingress is busy. Docker nginx on `:8080` (`lsof` shows it as colima's
+     `ssh` mux) proxies to whatever is listening on the host's `:8081` (FE)
+     and `:3000` (API). If another worktree owns either one, possibly in a
+     different repo (`speckle-next` uses the same ports), then
+     `<short>.localhost:8080` reaches *that* worktree's stack. Check the
+     owner with `lsof -a -p <pid> -d cwd`. Skip the ingress, and pick:
+     - an FE port in the `8xxx` range (`8082+`), free and not set as `PORT` in
+       any other worktree's `packages/frontend-3/mise.local.toml`
+     - a free API port (`3001+`)
+
+     In `packages/frontend-3/mise.local.toml`, set `HOST = "<short>.localhost"`,
+     `PORT` (FE port), `NUXT_PUBLIC_BASE_URL = "http://<short>.localhost:<fe>"`
+     and `NUXT_PUBLIC_API_ORIGIN = "http://<short>.localhost:<api>"`.
+
+     In `packages/server/mise.local.toml`, set `PORT` (API port),
+     `CANONICAL_URL = "http://<short>.localhost:<api>"` and
+     `FRONTEND_ORIGIN = "http://<short>.localhost:<fe>"`. These override the
+     repo-root `127.0.0.1:8080` defaults for this worktree only.
+
+     Postgres, Redis, object storage and maildev stay shared, so start only
+     `dev:server` and `dev:frontend-3`. When the FE port changes, update
+     `FRONTEND_ORIGIN` and restart both. Check with `serverInfo { canonicalUrl }`
+     on the API port.
+
    Done when no other listener owns the chosen FE port and the keys match the
    mode. Hand-back URL uses `<short>.localhost`, never bare `127.0.0.1`.
 
@@ -69,6 +96,10 @@ picks **FE-only → remote API** vs **full local stack**.
    `vite.server.allowedHosts` alongside `zog.local` / `zog.localhost`. If that
    pattern is missing, add it (do not hardcode one ticket's host). Done when
    a `mise run` / Nuxt boot with the new `BASE_URL` does not reject the Host.
+   Vite accepts `localhost` and every `*.localhost` subdomain by default, so a
+   `<short>.localhost` host needs no change. Boot first, and edit
+   `nuxt.config.ts` only for a host outside `.localhost` or when the boot
+   reports a blocked host.
 
 6. **Hand-back.** Tell the human the browse URL (`http://<short>.localhost:…`),
    the API target (remote host or local stack), not `127.0.0.1`. Re-login once
@@ -120,6 +151,18 @@ After the stop, and only in **close down and clean up**:
 - Package-level `mise.local.toml` is per-worktree (not inherited from the parent
   path for package dirs); `post-checkout` seeds missing files only.
 - Hoisted pnpm bins: `packages/frontend-3/mise.toml` `_.path` must include
-  `../../node_modules/.bin` or `mise run dev` cannot find `nuxt`.
+  `../../node_modules/.bin` or `mise run dev` cannot find `nuxt`. If the
+  committed file lacks it (the error is `nuxt: command not found`), add
+  `_.path = ["../../node_modules/.bin"]` under `[env]` in that package's
+  gitignored `mise.local.toml` instead of editing the tracked file.
+- `post-checkout` can stop at its seed step. Until
+  `jbr/seed-worktree-missing-file` merges, the seed script runs `cp` on
+  `packages/server/multiregion.json` even when the main checkout lacks it.
+  The task then fails before `mise install` and `pnpm install`. Run the
+  remaining `post-checkout` steps by hand. A fresh worktree also has no husky
+  hooks until `pnpm install` has run.
+- `graphql-codegen --watch` rewrites `packages/frontend-3/lib/common/generated/gql/*`
+  from the local schema on boot. That diff is not part of the ticket. Leave
+  it out of commits unless the ticket changed the schema.
 - Never point a new worktree at another live worktree’s named host (e.g. do not
   reuse `peq.localhost` for an `fea*` ticket).
