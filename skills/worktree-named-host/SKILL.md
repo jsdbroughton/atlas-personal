@@ -40,21 +40,47 @@ picks **FE-only → remote API** vs **full local stack**.
    | Mode | When |
    | --- | --- |
    | **FE-only → remote** | Change is frontend-3 / viewer UI only; no server, GraphQL schema, migration, or worker work in the ticket; need real projects/models/auth that local seed won’t match cheaply. Prefer staging when prod risk or unreleased API; use prod (`https://app.speckle.systems`) when that is the house pattern for FE spikes. |
+   | **FE-only → running local server** | Same FE-only scope, but local data or a local feature flag is needed, and a local server of the **same era** is already up (usually `:3000`, or another worktree's alternative API port). Point at it rather than starting another. |
    | **Full local stack** | Ticket touches `packages/server` (or a shared API contract the FE must call); need migrations, local feature flags, queues, multi-region, importers; debugging auth / CORS / same-origin / nginx; offline or must not hit remote. |
-
    | **Full local stack on alternative ports** | Full local stack is needed, but another worktree (in this repo or `speckle-next`) already holds `:8081` or `:3000` behind the shared `:8080` ingress. Several features in flight at once is the normal case, so check before you pick plain full local stack. |
 
-   Defaults: pure UI ticket → **FE-only → remote**. Any server file in scope →
-   **full local stack**.
+   Defaults: pure UI ticket → **FE-only**, against a remote or an
+   already-running local server. Never start a server for a frontend-only
+   ticket. Any server file in scope → **full local stack**, on alternative
+   ports when the ingress backends are taken.
+
+   **Server era is the only thing that must match.** A frontend can share any
+   server of its own era, but never a server of the other era:
+   - **App era:** `speckle-server-internal`, app.speckle.systems and its
+     staging. Its frontend-3 talks to app-era servers only.
+   - **Next era:** `speckle-next`, next.speckle.systems. Its frontend-3 talks
+     to next-era servers only.
+
+   The schemas differ (for example, next has no `insights` and app has no
+   Workflows), so a cross-era pairing boots but breaks on the first query.
+   To find a local listener's era, check which repo its process runs from:
+   `lsof -a -p <pid> -d cwd` shows a path under `speckle-server-internal/`
+   or `speckle-next/`. Do this before reusing `:3000`, because it often
+   belongs to a next worktree.
 
 4. **Port + `mise.local.toml` for that mode.**
 
-   - **FE-only → remote:** set `HOST` / browse via `<short>.localhost`; set
-     `PORT` to a free port (prefer `3030+`, confirm with `lsof`); set
-     `NUXT_PUBLIC_BASE_URL` to `http://<short>.localhost:<PORT>`; set
-     `NUXT_PUBLIC_API_ORIGIN` to the remote (`https://app.speckle.systems` or
-     staging). Do **not** start `mise run dev:server` unless asked. Do **not**
-     steal another worktree’s `:8081` / nginx ingress.
+   - **FE-only → remote:** set `HOST = "<short>.localhost"`. Set `PORT` to a
+     free `8xxx` port (`8082+`) that no other worktree's
+     `packages/frontend-3/mise.local.toml` sets, and confirm it with `lsof`.
+     Set `NUXT_PUBLIC_BASE_URL` to `http://<short>.localhost:<PORT>` and
+     `NUXT_PUBLIC_API_ORIGIN` to the remote of this repo's era. Do **not**
+     start `mise run dev:server` unless asked. Do **not** take another
+     worktree's `:8081` or the nginx ingress.
+   - **FE-only → running local server:** set up the frontend as for remote,
+     but point `NUXT_PUBLIC_API_ORIGIN` at the running server, for example
+     `http://<short>.localhost:3000` or another worktree's API port, after
+     checking it is the same era. Don't restart that server or change its
+     config, because it belongs to another worktree. The server allows any
+     origin for CORS, so API calls work from your host. The catch is sign-in.
+     The server sends the post-login redirect to its own `FRONTEND_ORIGIN`,
+     which is the owning worktree's frontend. Sign in there once, or use a
+     token. If that gets in the way, switch to FE-only → remote.
    - **Full local stack:** same-origin via docker nginx ingress on `:8080`:
      set both `NUXT_PUBLIC_BASE_URL` and `NUXT_PUBLIC_API_ORIGIN` to
      `http://<short>.localhost:8080`. Leave Nuxt `PORT` at `8081` unless taken
